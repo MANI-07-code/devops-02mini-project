@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -20,14 +21,23 @@ jobs:
         username: ec2-user
         key: ${{ secrets.SSH_KEY }}
         script: |
+          # Clone repo if not exists
           if [ ! -d "devops-02mini-project" ]; then
             git clone https://github.com/MANI-07-code/devops-02mini-project.git
           fi
+
           cd devops-02mini-project
+
+          # Pull latest code
           git pull origin main
-          
+
+          # Install dependencies (safe for fresh EC2)
           sudo dnf install python3 -y || true
-          pip3 install flask || true
-          
+          sudo dnf install git -y || true
+          pip3 install -r requirements.txt || true
+
+          # Stop old app if running
           pkill -f app.py || true
+
+          # Run app in background
           nohup python3 app.py > output.log 2>&1 &
