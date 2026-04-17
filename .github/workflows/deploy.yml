@@ -21,9 +21,8 @@ jobs:
         username: ec2-user
         key: ${{ secrets.SSH_KEY }}
         script: |
-          # Install required tools
-          sudo dnf install git -y || true
-          sudo dnf install python3 -y || true
+          # Install required tools (non-interactive)
+          sudo dnf install -y git python3
 
           # Clone repo if not exists
           if [ ! -d "devops-02mini-project" ]; then
@@ -36,7 +35,7 @@ jobs:
           git pull origin main
 
           # Install dependencies
-          pip3 install -r requirements.txt || true
+          pip3 install -r requirements.txt
 
           # Stop old app if running
           pkill -f app.py || true
